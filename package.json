@@ -4,12 +4,21 @@
   "description": "api",
   "main": "code_app.js",
   "dependencies": {
+    "chai": "^4.3.4",
+    "cors": "2.8.5",
+    "express": "4.17.1",
+    "mocha": "^8.4.0",
+    "mysql": "2.18.1",
+    "mysql2": "2.1.0",
+    "sequelize": "6.3.4",
     "tedious": "^11.0.8"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "request": "^2.88.2"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-	"start": "node code_app.js"
+    "test": "mocha",
+    "start": "node code_app.js"
   },
   "author": "",
   "license": "ISC"

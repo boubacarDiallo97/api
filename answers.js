@@ -1,7 +1,6 @@
 // file to manage the data from and to the db, via API and via sequelize library
 
 // required libraries
-var answers_model = require('./models/answers');
 var Sequelize = require('sequelize');
 var mysql = require('mysql');
 
