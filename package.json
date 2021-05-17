@@ -1,0 +1,16 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "api",
+  "main": "code_app.js",
+  "dependencies": {
+    "tedious": "^11.0.8"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+	"start": "node code_app.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
