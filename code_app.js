@@ -32,12 +32,13 @@ connection.connect();
 
 // allowing several oringin: servers and ports
 const allowedOrigins = [
-  'capacitor://localhost',
-  'ionic://localhost',
-  'http://localhost',
-  'http://localhost:8080',
-  'http://localhost:8100',
-  'http://localhost:4200'
+	'capacitor://localhost',
+	'ionic://localhost',
+	'http://localhost',
+	'http://localhost:8080',
+	'http://localhost:8100',
+	'http://localhost:4200',
+	'https://icy-flower-0408c9203.azurestaticapps.net'
 ];
 
 // Reflect the origin if it's in the allowed list or not defined (cURL, Postman, etc.)
