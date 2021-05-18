@@ -21,7 +21,7 @@ var connection = new Connection(config);
 connection.on('connect', function(err) {
     // If no err, then good to proceed.
     if(err){
-        console.log("Non Connected");
+        console.log("Non Connected", err);
     }else{
         console.log("Connected");
     }
