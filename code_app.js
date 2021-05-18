@@ -90,9 +90,10 @@ app.post('/answers', R.cors(corsOptions), R.CreateAnswer);
 app.put('/answers', R.cors(corsOptions), R.UpdateAnswer);
 app.delete('/answers', R.cors(corsOptions), R.DeleteAnswer);
 
+app.set('port', process.env.PORT || 3000);
 // entry point of the app
-app.listen(3000, function() {
-  console.log('Listen by port 3000');
+app.listen(app.get('port'), function() {
+  console.log('Listen by port ', app.get('port'));
 });
 
 
