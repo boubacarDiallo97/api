@@ -41,3 +41,6 @@ exports.GetAnswers = require('./answers').GetAnswers;
 exports.CreateAnswer = require('./answers').CreateAnswerNoSequelize;
 exports.UpdateAnswer = require('./answers').UpdateAnswerNoSequelize;
 exports.DeleteAnswer = require('./answers').DeleteAnswer;
+
+// for the answers
+exports.GetUser = require('./users').GetUser;
