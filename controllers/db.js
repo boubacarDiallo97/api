@@ -62,7 +62,12 @@ exports.db = function(req, res) {
                 res.download(file);
             });
         }else{
-            return res.status(500).send('you version is up to date or not good version');
+            fs.writeFile('db.json', JSON.stringify([]), function (err) {
+                if (err) throw err;
+                console.log('Fichier créé !');
+                var file = __dirname + '/../db.json';
+                res.download(file);
+            });
         }
     }else{
         return res.status(500).send('need version');

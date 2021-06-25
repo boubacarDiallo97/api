@@ -1,1 +1,1 @@
-[{"cmd":"INSERT INTO Types (Name) VALUES ('test1')"},{"cmd":"INSERT INTO Languages (Name) VALUES ('test1')"},{"version":3}]
+[]
