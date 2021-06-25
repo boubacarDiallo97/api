@@ -30,6 +30,7 @@ connection.on('connect', function(err) {
 connection.connect();
 var Request = require('tedious').Request;
 var TYPES = require('tedious').TYPES;
+const fs = require('fs');
 
 // method for get entries in Difficulties (GET)
 exports.GetDifficulties =function(req, res) {
@@ -66,7 +67,19 @@ exports.CreateDifficulty = function (req, res) {
     });
 
     request.on('requestCompleted', function () {
-        return res.status(201).json({ Create: true });
+        let fichier = fs.readFileSync(__dirname + '/../data.json')
+        let data = JSON.parse(fichier);
+        let length = Object.keys(data).length;
+        var myObj = {};
+        const version = length + 1;
+        myObj[`${version.toString()}`] = [{"cmd": "INSERT INTO Difficulties (Name) VALUES ('" + value  + "')"}];
+        Object.assign(data,  myObj);
+        let donnees = JSON.stringify(data);
+        fs.writeFile('data.json', donnees, function (err) {
+            if (err) throw err;
+            console.log('File Update !');
+            return res.status(201).json({Create: true});
+        });
     });
     connection.execSql(request);
 }

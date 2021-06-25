@@ -30,6 +30,7 @@ connection.on('connect', function(err) {
 connection.connect();
 var Request = require('tedious').Request;
 var TYPES = require('tedious').TYPES;
+const fs = require('fs');
 // method for get entries in Subjects (GET)
 exports.GetSubjects =function(req, res) {
     request = new Request("Select * from Subjects;", function(err) {
@@ -66,7 +67,20 @@ exports.CreateSubject = function (req, res) {
     });
 
     request.on('requestCompleted', function () {
-        return res.status(201).json({ Create: true });
+        let fichier = fs.readFileSync(__dirname + '/../data.json')
+        let data = JSON.parse(fichier);
+        let length = Object.keys(data).length;
+        var myObj = {};
+        const version = length + 1;
+        myObj[`${version.toString()}`] = [{"cmd": "INSERT INTO Subjects (LanguageId, Name) VALUES ((SELECT LanguageId FROM Languages WHERE Name = '"
+                + req.query.Language  + "'), '" + req.query.Name  +"')"}];
+        Object.assign(data,  myObj);
+        let donnees = JSON.stringify(data);
+        fs.writeFile('data.json', donnees, function (err) {
+            if (err) throw err;
+            console.log('File Update !');
+            return res.status(201).json({Create: true});
+        });
     });
     connection.execSql(request);
 }

@@ -51,6 +51,9 @@ exports.db = function(req, res) {
                     i += 1;
                 });
             });
+            objectVersion = {}
+            objectVersion["version"] = maxVersion;
+            dataFinal.push(Object.assign({}, objectVersion));
             let donnees = JSON.stringify(dataFinal);
             fs.writeFile('db.json', donnees, function (err) {
                 if (err) throw err;

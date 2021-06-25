@@ -30,6 +30,7 @@ connection.on('connect', function(err) {
 connection.connect();
 var Request = require('tedious').Request;
 var TYPES = require('tedious').TYPES;
+const fs = require('fs');
 // method for get entries in Questions (GET)
 exports.GetQuestions =function(req, res) {
     var q = "Select * from Questions "
@@ -94,7 +95,20 @@ exports.CreateQuestion = function (req, res) {
     });
 
     request.on('requestCompleted', function () {
-        return res.status(201).json({ Create: true });
+        let fichier = fs.readFileSync(__dirname + '/../data.json')
+        let data = JSON.parse(fichier);
+        let length = Object.keys(data).length;
+        var myObj = {};
+        const version = length + 1;
+        myObj[`${version.toString()}`] = [{"cmd": "INSERT INTO Questions (QType, QLanguage, QDifficulty, QSubject, Text, Passed, Auxiliar) VALUES (" +
+                req.query.Type + ',' + req.query.Language + ',' + req.query.Difficulty + ',' + req.query.Subject + ', \'' + req.query.Text + '\', 0,' + req.query.Auxiliar + "')"}];
+        Object.assign(data,  myObj);
+        let donnees = JSON.stringify(data);
+        fs.writeFile('data.json', donnees, function (err) {
+            if (err) throw err;
+            console.log('File Update !');
+            return res.status(201).json({Create: true});
+        });
     });
     connection.execSql(request);
 }
