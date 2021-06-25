@@ -2,8 +2,8 @@
 var R = require("./controllers/onering.js");
 
 var app = R.express();
-var Connection = require('tedious').Connection;  
-var config = {  
+var Connection = require('tedious').Connection;
+var config = {
 	server: 'gpe.database.windows.net',  //update me
 	authentication: {
 		type: 'default',
@@ -17,14 +17,14 @@ var config = {
 		encrypt: true,
 		database: 'gpebd'  //update me
 	}
-};  
-var connection = new Connection(config);  
-connection.on('connect', function(err) {  
+};
+var connection = new Connection(config);
+connection.on('connect', function(err) {
 	// If no error, then good to proceed.
 	if(err){
 		console.log("Non Connected", err);
 	}else{
-		console.log("Connected");  
+		console.log("Connected");
 	}
 });
 
@@ -93,6 +93,9 @@ app.delete('/answers', R.cors(corsOptions), R.DeleteAnswer);
 
 // API for user
 app.get('/user', R.cors(corsOptions), R.GetUser);
+
+// API for db
+app.get('/db', R.cors(corsOptions), R.GetDB);
 
 app.set('port', process.env.PORT || 3000);
 

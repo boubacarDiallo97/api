@@ -1,5 +1,5 @@
 // "One Ring to rule them all, One Ring to find them, One Ring to bring them all"
-// file to centralize the import (by requires) of all the data managment via API of the diffents data types 
+// file to centralize the import (by requires) of all the data managment via API of the diffents data types
 
 // required libraries
 exports.express = require('express');
@@ -42,5 +42,8 @@ exports.CreateAnswer = require('./answers').CreateAnswerNoSequelize;
 exports.UpdateAnswer = require('./answers').UpdateAnswerNoSequelize;
 exports.DeleteAnswer = require('./answers').DeleteAnswer;
 
-// for the answers
+// for the User
 exports.GetUser = require('./users').GetUser;
+
+// for the db
+exports.GetDB = require('./db').db;
