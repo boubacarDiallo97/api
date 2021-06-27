@@ -1,6 +1,7 @@
 // file to manage the data from and to the db, via API and via sequelize library
 
 // required libraries
+const {updateDataFile} = require("./db");
 var Connection = require('tedious').Connection;
 var config = {
     server: 'gpe.database.windows.net',  //update me
@@ -29,8 +30,7 @@ connection.on('connect', function(err) {
 
 connection.connect();
 var Request = require('tedious').Request;
-var TYPES = require('tedious').TYPES;
-const fs = require('fs');
+
 // method for get entries in Questions (GET)
 exports.GetQuestions =function(req, res) {
     var q = "Select * from Questions "
@@ -85,9 +85,9 @@ exports.GetQuestions =function(req, res) {
 
 // method for create entry in Questions (POST)
 exports.CreateQuestion = function (req, res) {
-    const q  = "INSERT INTO Questions (QType, QLanguage, QDifficulty, QSubject, Text, Passed, Auxiliar) VALUES (" +
+    const cmdValue  = "INSERT INTO Questions (QType, QLanguage, QDifficulty, QSubject, Text, Passed, Auxiliar) VALUES (" +
         req.query.Type + ',' + req.query.Language + ',' + req.query.Difficulty + ',' + req.query.Subject + ', \'' + req.query.Text + '\', 0,' + req.query.Auxiliar + ')';
-    request = new Request(q, function(err) {
+    request = new Request(cmdValue, function(err) {
         if (err) {
             console.log(err);
             return res.status(500).send(err.message);
@@ -95,31 +95,18 @@ exports.CreateQuestion = function (req, res) {
     });
 
     request.on('requestCompleted', function () {
-        let fichier = fs.readFileSync(__dirname + '/../data.json')
-        let data = JSON.parse(fichier);
-        let length = Object.keys(data).length;
-        var myObj = {};
-        const version = length + 1;
-        myObj[`${version.toString()}`] = [{"cmd": "INSERT INTO Questions (QType, QLanguage, QDifficulty, QSubject, Text, Passed, Auxiliar) VALUES (" +
-                req.query.Type + ',' + req.query.Language + ',' + req.query.Difficulty + ',' + req.query.Subject + ', \'' + req.query.Text + '\', 0,' + req.query.Auxiliar + "')"}];
-        Object.assign(data,  myObj);
-        let donnees = JSON.stringify(data);
-        fs.writeFile('data.json', donnees, function (err) {
-            if (err) throw err;
-            console.log('File Update !');
-            return res.status(201).json({Create: true});
-        });
+        updateDataFile(req, res, cmdValue, 'creation');
     });
     connection.execSql(request);
 }
 
 // method for update entry in Questions (PUT)
 exports.UpdateQuestion = async function (req, res) {
-    const q = "UPDATE Questions SET "
+    const cmdValue = "UPDATE Questions SET "
         + 'QType = ' + req.query.Type + ' , QLanguage = ' + req.query.Language + ' , QDifficulty = '
         + req.query.Difficulty + ' , QSubject = ' + req.query.Subject + ' , Text = \'' + req.query.Text +
         '\' , Passed = '+ req.query.Passed + ' , Auxiliar = ' + req.query.Auxiliar + ' WHERE QuestionId = ' + req.query.QuestionId;
-    request = new Request(q, function(err) {
+    request = new Request(cmdValue, function(err) {
         if (err) {
             console.log(err);
             return res.status(500).send(err.message);
@@ -127,7 +114,7 @@ exports.UpdateQuestion = async function (req, res) {
     });
 
     request.on('requestCompleted', function () {
-        return res.status(200).json({ Update: true });
+        updateDataFile(req, res, cmdValue, 'update');
     });
     connection.execSql(request);
 
@@ -135,7 +122,8 @@ exports.UpdateQuestion = async function (req, res) {
 
 // method for delete entry in Questions (DELETE)
 exports.DeleteQuestion = function (req, res) {
-    request = new Request("DELETE Questions WHERE QuestionId = " + req.query.QuestionId, function(err) {
+    const cmdValue = "DELETE Questions WHERE QuestionId = " + req.query.QuestionId;
+    request = new Request(cmdValue, function(err) {
         if (err) {
             console.log(err);
             return res.status(500).send(err.message);
@@ -143,7 +131,7 @@ exports.DeleteQuestion = function (req, res) {
     });
 
     request.on('requestCompleted', function () {
-        return res.status(200).json({ Delete: true });
+        updateDataFile(req, res, cmdValue, 'delete');
     });
     connection.execSql(request);
 

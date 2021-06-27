@@ -73,3 +73,25 @@ exports.db = function(req, res) {
         return res.status(500).send('need version');
     }
 }
+
+exports.updateDataFile = function (req, res, cmdValue, type){
+    let fichier = fs.readFileSync(__dirname + '/../data.json')
+    let data = JSON.parse(fichier);
+    let length = Object.keys(data).length;
+    var myObj = {};
+    const version = length + 1;
+    myObj[`${version.toString()}`] = [{"cmd": cmdValue}];
+    Object.assign(data,  myObj);
+    let donnees = JSON.stringify(data);
+    fs.writeFile('data.json', donnees, function (err) {
+        if (err) throw err;
+        console.log('File Update !');
+        if(type === 'creation') {
+            return res.status(201).json({Create: true});
+        }else if (type === 'update'){
+            return res.status(200).json({ Update: true });
+        }else{
+            return res.status(200).json({ Delete: true });
+        }
+    });
+}

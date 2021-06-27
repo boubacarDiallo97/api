@@ -1,6 +1,7 @@
 // file to manage the data from and to the db, via API and via sequelize library
 
 // required libraries
+const {updateDataFile} = require("./db");
 var Connection = require('tedious').Connection;
 var config = {
     server: 'gpe.database.windows.net',  //update me
@@ -29,8 +30,6 @@ connection.on('connect', function(err) {
 
 connection.connect();
 var Request = require('tedious').Request;
-var TYPES = require('tedious').TYPES;
-const fs = require('fs');
 
 // method for get entries in Difficulties (GET)
 exports.GetDifficulties =function(req, res) {
@@ -59,7 +58,8 @@ exports.GetDifficulties =function(req, res) {
 // method for create entry in Difficulties (POST)
 exports.CreateDifficulty = function (req, res) {
     const value = req.query.Name;
-    request = new Request("INSERT INTO Difficulties (Name) VALUES ('" + value  +"'); ", function(err) {
+    const cmdValue = "INSERT INTO Difficulties (Name) VALUES ('" + value  + "')";
+    request = new Request(cmdValue, function(err) {
         if (err) {
             console.log(err);
             return res.status(500).send(err.message);
@@ -67,26 +67,15 @@ exports.CreateDifficulty = function (req, res) {
     });
 
     request.on('requestCompleted', function () {
-        let fichier = fs.readFileSync(__dirname + '/../data.json')
-        let data = JSON.parse(fichier);
-        let length = Object.keys(data).length;
-        var myObj = {};
-        const version = length + 1;
-        myObj[`${version.toString()}`] = [{"cmd": "INSERT INTO Difficulties (Name) VALUES ('" + value  + "')"}];
-        Object.assign(data,  myObj);
-        let donnees = JSON.stringify(data);
-        fs.writeFile('data.json', donnees, function (err) {
-            if (err) throw err;
-            console.log('File Update !');
-            return res.status(201).json({Create: true});
-        });
+        updateDataFile(req, res, cmdValue, 'creation');
     });
     connection.execSql(request);
 }
 
 // method for update entry in Difficulties (PUT)
 exports.UpdateDifficulty = async function (req, res) {
-    request = new Request("UPDATE Difficulties SET Name =\'" + req.query.Name  +"' WHERE DifficultyId = " + req.query.DifficultyId, function(err) {
+    const cmdValue = "UPDATE Difficulties SET Name =\'" + req.query.Name  +"' WHERE DifficultyId = " + req.query.DifficultyId;
+    request = new Request(cmdValue, function(err) {
         if (err) {
             console.log(err);
             return res.status(500).send(err.message);
@@ -94,7 +83,7 @@ exports.UpdateDifficulty = async function (req, res) {
     });
 
     request.on('requestCompleted', function () {
-        return res.status(200).json({ Update: true });
+        updateDataFile(req, res, cmdValue, 'update');
     });
     connection.execSql(request);
 
@@ -102,7 +91,8 @@ exports.UpdateDifficulty = async function (req, res) {
 
 // method for delete entry in Difficulties (DELETE)
 exports.DeleteDifficulty = function (req, res) {
-    request = new Request("DELETE Difficulties WHERE DifficultyId = " + req.query.DifficultyId, function(err) {
+    const cmdValue = "DELETE Difficulties WHERE DifficultyId = " + req.query.DifficultyId;
+    request = new Request(cmdValue, function(err) {
         if (err) {
             console.log(err);
             return res.status(500).send(err.message);
@@ -110,7 +100,7 @@ exports.DeleteDifficulty = function (req, res) {
     });
 
     request.on('requestCompleted', function () {
-        return res.status(200).json({ Delete: true });
+        updateDataFile(req, res, cmdValue, 'delete');
     });
     connection.execSql(request);
 
