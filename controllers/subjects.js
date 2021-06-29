@@ -75,35 +75,86 @@ exports.CreateSubject = function (req, res) {
 
 // method for update entry in Subjects (PUT)
 exports.UpdateSubject = async function (req, res) {
-    const cmdValue = "UPDATE Subjects SET Name =\'" + req.query.Name  +"' WHERE SubjectId = " + req.query.SubjectId;
-    request = new Request(cmdValue, function(err) {
+
+    const cmdRequest = "SELECT * from Subjects Where SubjectId=" + req.query.SubjectId;
+    requestSelect = new Request(cmdRequest, function(err) {
         if (err) {
             console.log(err);
-            return res.status(500).send(err.message);
         }
     });
 
-    request.on('requestCompleted', function () {
-        updateDataFile(req, res, cmdValue, 'update');
+    requestSelect.on('row', function(columns) {
+        var LanguageId = columns[1].value;
+        var Name = columns[2].value;
+        const cmdValue = "UPDATE Subjects SET Name =\'" + req.query.Name  +"' WHERE LanguageId = " + LanguageId + " AND Name='" + Name + "'";
+        request = new Request(cmdValue, function(err) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err.message);
+            }
+        });
+
+        request.on('requestCompleted', function () {
+            updateDataFile(req, res, cmdValue, 'update');
+        });
     });
-    connection.execSql(request);
+
+    requestSelect.on('requestCompleted', function () {
+        try  {
+            connection.execSql(request);
+        }
+        catch (e) {
+            console.error(e);
+        }
+    });
+
+    try {
+        connection.execSql(requestSelect);
+    }
+    catch (e) {
+        console.error(e);
+    }
 
 }
 
 // method for delete entry in Subjects (DELETE)
 exports.DeleteSubject = function (req, res) {
-    const cmdValue = "DELETE Subjects WHERE SubjectId = " + req.query.SubjectId;
-    request = new Request(cmdValue, function(err) {
+    const cmdRequest = "SELECT * from Subjects Where SubjectId=" + req.query.SubjectId;
+    requestSelect = new Request(cmdRequest, function(err) {
         if (err) {
             console.log(err);
-            return res.status(500).send(err.message);
         }
     });
 
-    request.on('requestCompleted', function () {
-        updateDataFile(req, res, cmdValue, 'delete');
-    });
-    connection.execSql(request);
+    requestSelect.on('row', function(columns) {
+        var LanguageId = columns[1].value;
+        var Name = columns[2].value;
+        const cmdValue = "DELETE Subjects WHERE LanguageId = " + LanguageId  + " AND Name='" + Name + "'";
+        request = new Request(cmdValue, function(err) {
+            if (err) {
+                console.log(err);
+            }
+        });
 
+        request.on('requestCompleted', function () {
+            updateDataFile(req, res, cmdValue, 'delete');
+        });
+    });
+
+    requestSelect.on('requestCompleted', function () {
+        try {
+            connection.execSql(request);
+        }
+        catch (e) {
+            console.error(e);
+        }
+    });
+
+    try {
+        connection.execSql(requestSelect);
+    }
+    catch (e) {
+        console.error(e);
+    }
 }
 

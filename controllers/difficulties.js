@@ -74,34 +74,64 @@ exports.CreateDifficulty = function (req, res) {
 
 // method for update entry in Difficulties (PUT)
 exports.UpdateDifficulty = async function (req, res) {
-    const cmdValue = "UPDATE Difficulties SET Name =\'" + req.query.Name  +"' WHERE DifficultyId = " + req.query.DifficultyId;
-    request = new Request(cmdValue, function(err) {
+    const cmdRequest = "SELECT * from Difficulties Where DifficultyId=" + req.query.DifficultyId;
+    requestSelect = new Request(cmdRequest, function(err) {
         if (err) {
             console.log(err);
-            return res.status(500).send(err.message);
         }
     });
 
-    request.on('requestCompleted', function () {
-        updateDataFile(req, res, cmdValue, 'update');
+    requestSelect.on('row', function(columns) {
+        var Name = columns[1].value;
+        const cmdValue = "UPDATE Difficulties SET Name =\'" + req.query.Name  +"' WHERE Name='" + Name + "'";
+        request = new Request(cmdValue, function(err) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err.message);
+            }
+        });
+
+        request.on('requestCompleted', function () {
+            updateDataFile(req, res, cmdValue, 'update');
+        });
     });
-    connection.execSql(request);
+
+    requestSelect.on('requestCompleted', function () {
+        connection.execSql(request);
+    });
+
+    connection.execSql(requestSelect);
 
 }
 
 // method for delete entry in Difficulties (DELETE)
 exports.DeleteDifficulty = function (req, res) {
-    const cmdValue = "DELETE Difficulties WHERE DifficultyId = " + req.query.DifficultyId;
-    request = new Request(cmdValue, function(err) {
+
+    const cmdRequest = "SELECT * from Difficulties Where DifficultyId=" + req.query.DifficultyId;
+    requestSelect = new Request(cmdRequest, function(err) {
         if (err) {
             console.log(err);
-            return res.status(500).send(err.message);
         }
     });
 
-    request.on('requestCompleted', function () {
-        updateDataFile(req, res, cmdValue, 'delete');
+    requestSelect.on('row', function(columns) {
+        var Name = columns[1].value;
+        const cmdValue = "DELETE Difficulties WHERE Name ='" + Name + "'";
+        request = new Request(cmdValue, function(err) {
+            if (err) {
+                console.log(err);
+            }
+        });
+
+        request.on('requestCompleted', function () {
+            updateDataFile(req, res, cmdValue, 'delete');
+        });
     });
-    connection.execSql(request);
+
+    requestSelect.on('requestCompleted', function () {
+        connection.execSql(request);
+    });
+
+    connection.execSql(requestSelect);
 
 }

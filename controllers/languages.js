@@ -73,33 +73,65 @@ exports.CreateLanguage = function (req, res) {
 
 // method for update entry in Languages (PUT)
 exports.UpdateLanguage = async function (req, res) {
-	const cmdValue = "UPDATE Languages SET Name =\'" + req.query.Name  +"' WHERE LanguageId = " + req.query.LanguageId;
-    request = new Request(cmdValue, function(err) {
-        if (err) {
-            console.log(err);
-			return res.status(500).send(err.message);
+
+	const cmdRequest = "SELECT * from Languages Where LanguageId=" + req.query.LanguageId;
+	requestSelect = new Request(cmdRequest, function(err) {
+		if (err) {
+			console.log(err);
 		}
 	});
 
-	request.on('requestCompleted', function () {
-		updateDataFile(req, res, cmdValue, 'update');
+	requestSelect.on('row', function(columns) {
+		var Name = columns[1].value;
+		const cmdValue = "UPDATE Languages SET Name =\'" + req.query.Name  +"' WHERE Name = '" + Name + "'";
+		request = new Request(cmdValue, function(err) {
+			if (err) {
+				console.log(err);
+				return res.status(500).send(err.message);
+			}
+		});
+
+		request.on('requestCompleted', function () {
+			updateDataFile(req, res, cmdValue, 'update');
+		});
 	});
-	connection.execSql(request);
+
+	requestSelect.on('requestCompleted', function () {
+		connection.execSql(request);
+	});
+
+	connection.execSql(requestSelect);
 
 }
 
 // method for delete entry in Languages (DELETE)
 exports.DeleteLanguage = function (req, res) {
-	const cmdValue = "DELETE Languages WHERE LanguageId = " + req.query.LanguageId;
-	request = new Request(cmdValue, function(err) {
+
+	const cmdRequest = "SELECT * from Languages Where LanguageId=" + req.query.LanguageId;
+	requestSelect = new Request(cmdRequest, function(err) {
         if (err) {
             console.log(err);
 		}
 	});
 
-	request.on('requestCompleted', function () {
-		updateDataFile(req, res, cmdValue, 'delete');
+	requestSelect.on('row', function(columns) {
+		var Name = columns[1].value;
+		const cmdValue = "DELETE Languages WHERE Name='" + Name + "'";
+		request = new Request(cmdValue, function(err) {
+			if (err) {
+				console.log(err);
+			}
+		});
+
+		request.on('requestCompleted', function () {
+			updateDataFile(req, res, cmdValue, 'delete');
+		});
 	});
-	connection.execSql(request);
+
+	requestSelect.on('requestCompleted', function () {
+		connection.execSql(request);
+	});
+
+	connection.execSql(requestSelect);
 
 }

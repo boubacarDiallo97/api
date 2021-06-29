@@ -102,37 +102,94 @@ exports.CreateQuestion = function (req, res) {
 
 // method for update entry in Questions (PUT)
 exports.UpdateQuestion = async function (req, res) {
-    const cmdValue = "UPDATE Questions SET "
-        + 'QType = ' + req.query.Type + ' , QLanguage = ' + req.query.Language + ' , QDifficulty = '
-        + req.query.Difficulty + ' , QSubject = ' + req.query.Subject + ' , Text = \'' + req.query.Text +
-        '\' , Passed = '+ req.query.Passed + ' , Auxiliar = ' + req.query.Auxiliar + ' WHERE QuestionId = ' + req.query.QuestionId;
-    request = new Request(cmdValue, function(err) {
+
+    const cmdRequest = "SELECT * from Questions Where QuestionId=" + req.query.QuestionId;
+    requestSelect = new Request(cmdRequest, function(err) {
         if (err) {
             console.log(err);
-            return res.status(500).send(err.message);
         }
     });
 
-    request.on('requestCompleted', function () {
-        updateDataFile(req, res, cmdValue, 'update');
+    requestSelect.on('row', function(columns) {
+        var QType = columns[1].value;
+        var QLanguage = columns[2].value;
+        var Text = columns[5].value;
+        const cmdValue = "UPDATE Questions SET "
+            + 'QType = ' + req.query.Type + ' , QLanguage = ' + req.query.Language + ' , QDifficulty = '
+            + req.query.Difficulty + ' , QSubject = ' + req.query.Subject + ' , Text = \'' + req.query.Text +
+            '\' , Passed = '+ req.query.Passed + ' , Auxiliar = ' + req.query.Auxiliar + ' WHERE QType=' + QType +
+            " AND QLanguage=" + QLanguage + " AND Text ='" + Text + "'";
+        request = new Request(cmdValue, function(err) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err.message);
+            }
+        });
+
+        request.on('requestCompleted', function () {
+            updateDataFile(req, res, cmdValue, 'update');
+        });
     });
-    connection.execSql(request);
+
+    requestSelect.on('requestCompleted', function () {
+        try  {
+            connection.execSql(request);
+        }
+        catch (e) {
+            console.error(e);
+        }
+    });
+
+    try {
+        connection.execSql(requestSelect);
+    }
+    catch (e) {
+        console.error(e);
+    }
 
 }
 
 // method for delete entry in Questions (DELETE)
 exports.DeleteQuestion = function (req, res) {
-    const cmdValue = "DELETE Questions WHERE QuestionId = " + req.query.QuestionId;
-    request = new Request(cmdValue, function(err) {
+    const cmdRequest = "SELECT * from Questions Where QuestionId=" + req.query.QuestionId;
+    requestSelect = new Request(cmdRequest, function(err) {
         if (err) {
             console.log(err);
-            return res.status(500).send(err.message);
         }
     });
 
-    request.on('requestCompleted', function () {
-        updateDataFile(req, res, cmdValue, 'delete');
+    requestSelect.on('row', function(columns) {
+        var QType = columns[1].value;
+        var QLanguage = columns[2].value;
+        var Text = columns[5].value;
+        const cmdValue = "DELETE Questions WHERE QType=" + QType  + " AND QLanguage=" + QLanguage + " AND Text ='" + Text + "'";
+
+        request = new Request(cmdValue, function(err) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err.message);
+            }
+        });
+
+        request.on('requestCompleted', function () {
+            updateDataFile(req, res, cmdValue, 'update');
+        });
     });
-    connection.execSql(request);
+
+    requestSelect.on('requestCompleted', function () {
+        try  {
+            connection.execSql(request);
+        }
+        catch (e) {
+            console.error(e);
+        }
+    });
+
+    try {
+        connection.execSql(requestSelect);
+    }
+    catch (e) {
+        console.error(e);
+    }
 
 }
