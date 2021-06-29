@@ -116,7 +116,7 @@ exports.DeleteDifficulty = function (req, res) {
 
     requestSelect.on('row', function(columns) {
         var Name = columns[1].value;
-        const cmdValue = "DELETE Difficulties WHERE Name ='" + Name + "'";
+        const cmdValue = "DELETE FROM Difficulties WHERE Name ='" + Name + "'";
         request = new Request(cmdValue, function(err) {
             if (err) {
                 console.log(err);

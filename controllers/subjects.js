@@ -86,7 +86,7 @@ exports.UpdateSubject = async function (req, res) {
     requestSelect.on('row', function(columns) {
         var LanguageId = columns[1].value;
         var Name = columns[2].value;
-        const cmdValue = "UPDATE Subjects SET Name =\'" + req.query.Name  +"' WHERE LanguageId = " + LanguageId + " AND Name='" + Name + "'";
+        const cmdValue = "UPDATE Subjects SET Name =\'" + req.query.Name  +"' WHERE LanguageId=" + LanguageId + " AND Name='" + Name + "'";
         request = new Request(cmdValue, function(err) {
             if (err) {
                 console.log(err);
@@ -129,7 +129,7 @@ exports.DeleteSubject = function (req, res) {
     requestSelect.on('row', function(columns) {
         var LanguageId = columns[1].value;
         var Name = columns[2].value;
-        const cmdValue = "DELETE Subjects WHERE LanguageId = " + LanguageId  + " AND Name='" + Name + "'";
+        const cmdValue = "DELETE FROM Subjects WHERE LanguageId =" + LanguageId  + " AND Name='" + Name + "'";
         request = new Request(cmdValue, function(err) {
             if (err) {
                 console.log(err);

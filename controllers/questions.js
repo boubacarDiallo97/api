@@ -162,7 +162,7 @@ exports.DeleteQuestion = function (req, res) {
         var QType = columns[1].value;
         var QLanguage = columns[2].value;
         var Text = columns[5].value;
-        const cmdValue = "DELETE Questions WHERE QType=" + QType  + " AND QLanguage=" + QLanguage + " AND Text ='" + Text + "'";
+        const cmdValue = "DELETE FROM Questions WHERE QType=" + QType  + " AND QLanguage=" + QLanguage + " AND Text ='" + Text + "'";
 
         request = new Request(cmdValue, function(err) {
             if (err) {

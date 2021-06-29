@@ -116,7 +116,7 @@ exports.DeleteLanguage = function (req, res) {
 
 	requestSelect.on('row', function(columns) {
 		var Name = columns[1].value;
-		const cmdValue = "DELETE Languages WHERE Name='" + Name + "'";
+		const cmdValue = "DELETE FROM Languages WHERE Name='" + Name + "'";
 		request = new Request(cmdValue, function(err) {
 			if (err) {
 				console.log(err);

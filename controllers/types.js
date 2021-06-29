@@ -137,7 +137,7 @@ exports.DeleteType = function (req, res) {
 
     requestSelect.on('row', function(columns) {
         var Name = columns[1].value;
-        const cmdValue = "DELETE Types WHERE Name='" + Name + "'";
+        const cmdValue = "DELETE FROM Types WHERE Name='" + Name + "'";
         request = new Request(cmdValue, function(err) {
             if (err) {
                 console.log(err);
