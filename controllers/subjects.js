@@ -74,87 +74,71 @@ exports.CreateSubject = function (req, res) {
 }
 
 // method for update entry in Subjects (PUT)
-exports.UpdateSubject = async function (req, res) {
+exports.UpdateSubject = function (req, res) {
+    UpdateAndDelete(req, res, 'update');
+}
 
+// method for delete entry in Subjects (DELETE)
+exports.DeleteSubject = function (req, res) {
+    UpdateAndDelete(req, res, 'delete');
+}
+
+UpdateAndDelete = function(req, res, type) {
+    let NameSubject;
+    let LanguageId = 0;
+    let NameLanguage;
+    let cmdValue = '';
     const cmdRequest = "SELECT * from Subjects Where SubjectId=" + req.query.SubjectId;
-    requestSelect = new Request(cmdRequest, function(err) {
+    let requestSelect = new Request(cmdRequest, function (err) {
         if (err) {
             console.log(err);
         }
     });
 
-    requestSelect.on('row', function(columns) {
-        var LanguageId = columns[1].value;
-        var Name = columns[2].value;
-        const cmdValue = "UPDATE Subjects SET Name =\'" + req.query.Name  +"' WHERE LanguageId=" + LanguageId + " AND Name='" + Name + "'";
-        request = new Request(cmdValue, function(err) {
+    requestSelect.on('row', function (columns) {
+        LanguageId = columns[1].value;
+        NameSubject = columns[2].value;
+        let requestSelectLanguage = new Request("SELECT * from Languages Where LanguageId=" + LanguageId, function (err) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err.message);
             }
         });
 
-        request.on('requestCompleted', function () {
-            updateDataFile(req, res, cmdValue, 'update');
+        requestSelectLanguage.on('row', function (columns) {
+            NameLanguage = columns[1].value;
+            let startValue = type === 'update' ? "UPDATE Subjects SET Name =\'" + req.query.Name + "'" : "DELETE FROM Subjects";
+            cmdValue = startValue + " WHERE LanguageId =(SELECT LanguageId from Languages WHERE Name='" + NameLanguage + "') AND Name='" + NameSubject + "'";
+            console.log(cmdValue);
+            let requestUpdate = new Request(cmdValue, function (err) {
+                if (err) {
+                    console.log(err);
+                    return res.status(500).send(err.message);
+                }
+            });
+
+            requestUpdate.on('requestCompleted', function () {
+                updateDataFile(req, res, cmdValue, type);
+            });
+
+            requestSelectLanguage.on('requestCompleted', function () {
+                connection.execSql(requestUpdate);
+            });
         });
-    });
 
-    requestSelect.on('requestCompleted', function () {
-        try  {
-            connection.execSql(request);
-        }
-        catch (e) {
-            console.error(e);
-        }
-    });
-
-    try {
-        connection.execSql(requestSelect);
-    }
-    catch (e) {
-        console.error(e);
-    }
-
-}
-
-// method for delete entry in Subjects (DELETE)
-exports.DeleteSubject = function (req, res) {
-    const cmdRequest = "SELECT * from Subjects Where SubjectId=" + req.query.SubjectId;
-    requestSelect = new Request(cmdRequest, function(err) {
-        if (err) {
-            console.log(err);
-        }
-    });
-
-    requestSelect.on('row', function(columns) {
-        var LanguageId = columns[1].value;
-        var Name = columns[2].value;
-        const cmdValue = "DELETE FROM Subjects WHERE LanguageId =" + LanguageId  + " AND Name='" + Name + "'";
-        request = new Request(cmdValue, function(err) {
-            if (err) {
-                console.log(err);
+        requestSelect.on('requestCompleted', function () {
+            try {
+                connection.execSql(requestSelectLanguage);
+            } catch (e) {
+                console.error(e);
             }
         });
-
-        request.on('requestCompleted', function () {
-            updateDataFile(req, res, cmdValue, 'delete');
-        });
     });
 
-    requestSelect.on('requestCompleted', function () {
-        try {
-            connection.execSql(request);
-        }
-        catch (e) {
-            console.error(e);
-        }
-    });
 
     try {
         connection.execSql(requestSelect);
-    }
-    catch (e) {
+    } catch (e) {
         console.error(e);
     }
 }
-
