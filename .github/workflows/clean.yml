@@ -1,8 +1,4 @@
 name: 'nightly artifacts cleanup'
-on:
-  schedule:
-    - cron: '0 4 * * *' # every night at 4 am UTC
-
 jobs:
   delete-artifacts:
     runs-on: ubuntu-latest
@@ -11,3 +7,4 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           expire-in: 5days # Setting this to 0 will delete all artifacts
+artifacts
