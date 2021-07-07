@@ -33,8 +33,7 @@ var Request = require('tedious').Request;
 
 // method for get entries in Questions (GET)
 exports.GetQuestions =function(req, res) {
-    var q = "SELECT Q.QuestionId, T.Name, L.Name, D.Name, S.Name, Q.Text, Q.Passed, Q.Auxiliar from Questions Q, Languages L, Types T, Difficulties D, Subjects S where Q.QType=T.TypeId AND Q.QLanguage=L.LanguageId" +
-        " AND Q.QDifficulty=D.DifficultyId AND Q.QSubject=S.SubjectId";
+    var q = "SELECT Q.QuestionId, T.Name, L.Name, D.Name, S.Name, Q.Text, Q.Passed, Q.Auxiliar from Questions Q, Languages L, Types T, Difficulties D, Subjects S where Q.QType=T.TypeId AND Q.QLanguage=L.LanguageId AND Q.QDifficulty=D.DifficultyId AND Q.QSubject=S.SubjectId";
     const cmdType = "(SELECT TypeId from Types Where Name='" + req.query.Type + "'),";
     const cmdDifficulty = "(SELECT DifficultyId from Difficulties Where Name='" + req.query.Difficulty + "')";
     const cmdLanguage = "(SELECT LanguageId from Languages Where Name='" + req.query.Language + "')";
@@ -52,7 +51,6 @@ exports.GetQuestions =function(req, res) {
     if(req.query.Difficulty) {
         q += " AND QDifficulty =" + cmdDifficulty;
     }
-    console.log(q);
     request = new Request(q, function(err) {
         if (err) {
             console.log(err);
@@ -83,11 +81,12 @@ exports.GetQuestions =function(req, res) {
 exports.CreateQuestion = function (req, res) {
     const cmdValue  = "INSERT INTO Questions (QType, QLanguage, QDifficulty, QSubject, Text, Passed, Auxiliar) VALUES (" +
         "(SELECT TypeId FROM Types WHERE Name='" + req.query.Type + "')," +
-        "(SELECT DifficultyId FROM Difficulties WHERE Name='" + req.query.Difficulty + "')," +
         "(SELECT LanguageId FROM Languages WHERE Name='" + req.query.Language + "')," +
+        "(SELECT DifficultyId FROM Difficulties WHERE Name='" + req.query.Difficulty + "')," +
         "(SELECT SubjectId FROM Subjects WHERE Name='" + req.query.Subject + "' AND LanguageId=(SELECT LanguageId FROM Languages WHERE Name='"+ req.query.Language + "'))" +
         ', \'' + req.query.Text + '\', 0,' + req.query.Auxiliar + ')';
 
+    console.log(cmdValue);
     let request = new Request(cmdValue, function(err) {
         if (err) {
             console.log(err);
