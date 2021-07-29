@@ -73,7 +73,12 @@ exports.GetQuestions =function(req, res) {
     request.on('requestCompleted', function () {
         return res.status(200).send(result);
     });
-    connection.execSql(request);
+    try {
+        connection.execSql(request);
+    }catch (e){
+        console.log(e);
+    }
+
 
 }
 
@@ -91,13 +96,18 @@ exports.CreateQuestion = function (req, res) {
         if (err) {
             console.log(err);
             return res.status(500).send(err.message);
+        }else{
+            request.on('requestCompleted', function () {
+                updateDataFile(req, res, cmdValue, 'creation');
+            });
         }
     });
 
-    request.on('requestCompleted', function () {
-        updateDataFile(req, res, cmdValue, 'creation');
-    });
-    connection.execSql(request);
+    try {
+        connection.execSql(request);
+    }catch (e) {
+        console.log(e);
+    }
 }
 
 // method for update entry in Questions (PUT)
@@ -130,12 +140,13 @@ exports.UpdateQuestion = async function (req, res) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err.message);
+            }else{
+                request.on('requestCompleted', function () {
+                    updateDataFile(req, res, cmdValue, 'update');
+                });
             }
         });
 
-        request.on('requestCompleted', function () {
-            updateDataFile(req, res, cmdValue, 'update');
-        });
     });
 
     requestSelect.on('requestCompleted', function () {
@@ -180,12 +191,13 @@ exports.DeleteQuestion = function (req, res) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err.message);
+            }else{
+                request.on('requestCompleted', function () {
+                    updateDataFile(req, res, cmdValue, 'update');
+                });
             }
         });
 
-        request.on('requestCompleted', function () {
-            updateDataFile(req, res, cmdValue, 'update');
-        });
     });
 
     requestSelect.on('requestCompleted', function () {

@@ -54,8 +54,7 @@ exports.GetTypes =function(req, res) {
 
     try {
         connection.execSql(request);
-    }
-    catch (e) {
+    } catch (e) {
         console.error(e);
     }
 
@@ -69,17 +68,16 @@ exports.CreateType = function (req, res) {
         if (err) {
             console.log(err);
             return res.status(500).send(err.message);
+        }else{
+            request.on('requestCompleted', function () {
+                updateDataFile(req, res, cmdValue, 'creation');
+            });
         }
-    });
-
-    request.on('requestCompleted', function () {
-        updateDataFile(req, res, cmdValue, 'creation');
     });
 
     try {
         connection.execSql(request);
-    }
-    catch (e) {
+    } catch (e) {
         console.error(e);
     }
 }
@@ -100,27 +98,26 @@ exports.UpdateType = async function (req, res) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err.message);
+            }else{
+                request.on('requestCompleted', function () {
+                    updateDataFile(req, res, cmdValue, 'update');
+                });
             }
         });
 
-        request.on('requestCompleted', function () {
-            updateDataFile(req, res, cmdValue, 'update');
-        });
     });
 
     requestSelect.on('requestCompleted', function () {
         try  {
             connection.execSql(request);
-        }
-        catch (e) {
+        } catch (e) {
             console.error(e);
         }
     });
 
     try {
         connection.execSql(requestSelect);
-    }
-    catch (e) {
+    } catch (e) {
         console.error(e);
     }
 
@@ -141,11 +138,11 @@ exports.DeleteType = function (req, res) {
         request = new Request(cmdValue, function(err) {
             if (err) {
                 console.log(err);
+            }else{
+                request.on('requestCompleted', function () {
+                    updateDataFile(req, res, cmdValue, 'delete');
+                });
             }
-        });
-
-        request.on('requestCompleted', function () {
-            updateDataFile(req, res, cmdValue, 'delete');
         });
     });
 

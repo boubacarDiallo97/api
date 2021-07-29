@@ -2,6 +2,7 @@
 var R = require("./controllers/onering.js");
 
 var app = R.express();
+
 var Connection = require('tedious').Connection;
 var config = {
 	server: 'gpe.database.windows.net',  //update me
@@ -24,6 +25,10 @@ connection.on('connect', function(err) {
 	if(err){
 		console.log("Non Connected", err);
 	}else{
+		// entry point of the app
+		module.exports = app.listen(app.get('port'), function() {
+				console.log('Listen by port ', app.get('port'));
+		});
 		console.log("Connected");
 	}
 });
@@ -86,10 +91,7 @@ app.put('/difficulties', R.cors(corsOptions), R.UpdateDifficulty);
 app.delete('/difficulties', R.cors(corsOptions), R.DeleteDifficulty);
 
 // API for answers
-app.get('/answers', R.cors(corsOptions), R.GetAnswers);
-app.post('/answers', R.cors(corsOptions), R.CreateAnswer);
-app.put('/answers', R.cors(corsOptions), R.UpdateAnswer);
-app.delete('/answers', R.cors(corsOptions), R.DeleteAnswer);
+
 
 // API for user
 app.get('/user', R.cors(corsOptions), R.GetUser);
@@ -99,14 +101,9 @@ app.get('/db', R.cors(corsOptions), R.GetDB);
 
 app.set('port', process.env.PORT || 3000);
 
-// entry point of the app
-app.listen(app.get('port'), function() {
-  console.log('Listen by port ', app.get('port'));
-});
+
 
 
 app.get('/', function(req, res, next) {
 	res.sendFile('./index.html', {root: __dirname });
 });
-
-

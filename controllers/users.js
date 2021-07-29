@@ -53,6 +53,10 @@ exports.GetUser =function(req, res) {
     request.on('requestCompleted', function () {
         return res.status(200).send(result);
     });
-    connection.execSql(request);
+    try {
+        connection.execSql(request);
+    } catch (e) {
+        console.error(e);
+    }
 
 }

@@ -45,32 +45,45 @@ exports.GetSubjects =function(req, res) {
         var SubjectId = columns[0].value;
         var LanguageId = columns[1].value;
         var Name = columns[2].value;
-        result.push({ SubjectId, Name, LanguageId});
+        var Link = columns[3].value;
+        result.push({ SubjectId, Name, LanguageId, Link});
 
     });
 
     request.on('requestCompleted', function () {
         return res.status(200).send(result);
     });
-    connection.execSql(request);
+    try {
+        connection.execSql(request);
+    } catch (e) {
+        console.error(e);
+    }
+
 
 }
 
 // method for create entry in Subjects (POST)
 exports.CreateSubject = function (req, res) {
-    const cmdValue = "INSERT INTO Subjects (LanguageId, Name) VALUES ((SELECT LanguageId FROM Languages WHERE Name = '"
-        + req.query.Language  + "'), '" + req.query.Name  +"')";
-    request = new Request(cmdValue, function(err) {
+    const cmdValue = "INSERT INTO Subjects (LanguageId, Name, Link) VALUES ((SELECT LanguageId FROM Languages WHERE Name = '"
+        + req.query.Language  + "'), '" + req.query.Name  + "', '" + req.query.Link +"')";
+
+    request = new Request(cmdValue, function (err) {
         if (err) {
             console.log(err);
             return res.status(500).send(err.message);
+        }else{
+            request.on('requestCompleted', function () {
+                updateDataFile(req, res, cmdValue, 'creation');
+            });
         }
     });
 
-    request.on('requestCompleted', function () {
-        updateDataFile(req, res, cmdValue, 'creation');
-    });
-    connection.execSql(request);
+
+    try {
+        connection.execSql(request);
+    }catch (e){
+        console.log(e);
+    }
 }
 
 // method for update entry in Subjects (PUT)
@@ -107,22 +120,28 @@ UpdateAndDelete = function(req, res, type) {
 
         requestSelectLanguage.on('row', function (columns) {
             NameLanguage = columns[1].value;
-            let startValue = type === 'update' ? "UPDATE Subjects SET Name =\'" + req.query.Name + "'" : "DELETE FROM Subjects";
-            cmdValue = startValue + " WHERE LanguageId =(SELECT LanguageId from Languages WHERE Name='" + NameLanguage + "') AND Name='" + NameSubject + "'";
+            let startValue = type === 'update' ? "UPDATE Subjects SET Name ='" + req.query.Name + "', Link='" + req.query.Link + "' " : "DELETE FROM Subjects ";
+            cmdValue = startValue + "WHERE LanguageId =(SELECT LanguageId from Languages WHERE Name='" + NameLanguage + "') AND Name='" + NameSubject + "'";
             console.log(cmdValue);
             let requestUpdate = new Request(cmdValue, function (err) {
                 if (err) {
                     console.log(err);
                     return res.status(500).send(err.message);
+                }else{
+                    requestUpdate.on('requestCompleted', function () {
+                        updateDataFile(req, res, cmdValue, type);
+                    });
                 }
             });
 
-            requestUpdate.on('requestCompleted', function () {
-                updateDataFile(req, res, cmdValue, type);
-            });
 
             requestSelectLanguage.on('requestCompleted', function () {
-                connection.execSql(requestUpdate);
+                try {
+                    connection.execSql(requestUpdate);
+                }catch (e) {
+                    console.log(e);
+                }
+
             });
         });
 

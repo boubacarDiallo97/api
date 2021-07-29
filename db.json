@@ -1,1 +1,4 @@
 []
+(select difficultyId from Difficulties where name='Operators')
+(select subjectId from Subjects where name='Operators')
+(select subjectId from Subjects where name='Functions')

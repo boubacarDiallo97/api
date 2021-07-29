@@ -51,7 +51,11 @@ exports.GetDifficulties =function(req, res) {
     request.on('requestCompleted', function () {
         return res.status(200).send(result);
     });
-    connection.execSql(request);
+    try {
+        connection.execSql(request);
+    }catch (e) {
+        console.log(e);
+    }
 
 }
 
@@ -63,13 +67,19 @@ exports.CreateDifficulty = function (req, res) {
         if (err) {
             console.log(err);
             return res.status(500).send(err.message);
+        }else{
+            request.on('requestCompleted', function () {
+                updateDataFile(req, res, cmdValue, 'creation');
+            });
         }
     });
 
-    request.on('requestCompleted', function () {
-        updateDataFile(req, res, cmdValue, 'creation');
-    });
-    connection.execSql(request);
+    try {
+        connection.execSql(request);
+    }catch (e) {
+        console.log(e);
+    }
+
 }
 
 // method for update entry in Difficulties (PUT)
@@ -88,19 +98,29 @@ exports.UpdateDifficulty = async function (req, res) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err.message);
+            }else {
+                request.on('requestCompleted', function () {
+                    updateDataFile(req, res, cmdValue, 'update');
+                });
             }
         });
 
-        request.on('requestCompleted', function () {
-            updateDataFile(req, res, cmdValue, 'update');
-        });
     });
 
     requestSelect.on('requestCompleted', function () {
-        connection.execSql(request);
-    });
+        try {
+            connection.execSql(request);
+        }catch (e) {
+            console.log(e);
+        }
 
-    connection.execSql(requestSelect);
+    });
+    try {
+        connection.execSql(requestSelect);
+    }catch (e) {
+        console.log(e);
+    }
+
 
 }
 
@@ -120,18 +140,28 @@ exports.DeleteDifficulty = function (req, res) {
         request = new Request(cmdValue, function(err) {
             if (err) {
                 console.log(err);
+            }else {
+                request.on('requestCompleted', function () {
+                    updateDataFile(req, res, cmdValue, 'delete');
+                });
             }
         });
 
-        request.on('requestCompleted', function () {
-            updateDataFile(req, res, cmdValue, 'delete');
-        });
     });
 
     requestSelect.on('requestCompleted', function () {
-        connection.execSql(request);
-    });
+        try {
+            connection.execSql(request);
+        }catch (e) {
+            console.log(e);
+        }
 
-    connection.execSql(requestSelect);
+    });
+    try {
+        connection.execSql(requestSelect);
+    }catch (e) {
+        console.log(e);
+    }
+
 
 }

@@ -36,12 +36,6 @@ exports.CreateType = require('./types').CreateType;
 exports.UpdateType = require('./types').UpdateType;
 exports.DeleteType = require('./types').DeleteType;
 
-// for the answers
-exports.GetAnswers = require('./answers').GetAnswers;
-exports.CreateAnswer = require('./answers').CreateAnswerNoSequelize;
-exports.UpdateAnswer = require('./answers').UpdateAnswerNoSequelize;
-exports.DeleteAnswer = require('./answers').DeleteAnswer;
-
 // for the User
 exports.GetUser = require('./users').GetUser;
 
